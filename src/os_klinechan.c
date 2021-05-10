@@ -16,6 +16,7 @@ klinechan_check_join(hook_channel_joinpart_t *hdata)
 	chanuser_t *cu = hdata->cu;
 	service_t *svs;
 	char reason[256];
+	metadata_t *md;
 	const char *khost;
 	kline_t *k;
 
@@ -50,8 +51,22 @@ klinechan_check_join(hook_channel_joinpart_t *hdata)
 		}
 		else
 		{
-			snprintf(reason, sizeof reason, "Joining %s",
-					cu->chan->name);
+			md = metadata_find(mc, "private:klinechan:reason");
+
+			if (!md)
+			{
+				snprintf(reason, sizeof reason, "Joining %s",
+						cu->chan->name);
+			}
+
+			else
+			{
+				char *pipe;
+				if (0 != (pipe = strchr(md->value, '|')))
+					*pipe = '\0';
+				snprintf(reason, sizeof reason, md->value,
+						cu->chan->name);
+			}
 			slog(LG_INFO, "klinechan_check_join(): klining \2*@%s\2 (user \2%s!%s@%s\2 joined \2%s\2)",
 					khost, cu->user->nick,
 					cu->user->user, cu->user->host,
