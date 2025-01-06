@@ -2,7 +2,7 @@
  * Copyright (C) 2025 David Schultz <me@zpld.me>
  * Rights to this code are as documented in doc/LICENSE.
  *
- * Makes sure users with operator flags in a channel are 
+ * Makes sure users with operator flags in a channel are
  * opped before a services shutdown.
  */
 
@@ -11,10 +11,11 @@
 static void
 on_shutdown(void *unused)
 {
+	const char *log_target = service_get_log_target(chansvs.me);
 	struct mychan *mc;
 	mowgli_patricia_iteration_state_t state;
 
-	slog(LG_INFO, "cs_safeops: Granting channel operator status to channel operators prior to shutdown");
+	slog(LG_INFO, "%s cs_safeops: Granting channel operator status to channel operators prior to shutdown", log_target);
 	MOWGLI_PATRICIA_FOREACH(mc, &state, mclist)
 	{
 		if (mc->chan == NULL)
@@ -76,7 +77,7 @@ on_shutdown(void *unused)
 		}
 		modestack_flush_channel(mc->chan);
 	}
-	slog(LG_INFO, "cs_safeops: Channel operator statuses granted. Shutdown will proceed."); 
+	slog(LG_INFO, "%s cs_safeops: Channel operator statuses granted. Shutdown will proceed.", log_target);
 }
 
 static void
